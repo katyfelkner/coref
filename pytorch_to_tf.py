@@ -43,7 +43,10 @@ def load_from_pytorch_checkpoint(checkpoint, assignment_map):
         var = store_vars.get(name, None)
         assert var is not None
         if name not in pt_model_with_tf_keys:
-            print('WARNING:', name, 'not found in original model.')
+            print('WARNING:', name, 'not found in original model, initializing randomly.')
+            init_value = tf.random.normal(var.get_shape())
+            var._initial_value = init_value
+            var._initializer_op = var.assign(init_value)
             continue
         array = pt_model_with_tf_keys[name].cpu().numpy()
         if any([x in name for x in tensors_to_transpose]):
@@ -57,7 +60,7 @@ def load_from_pytorch_checkpoint(checkpoint, assignment_map):
 def print_vars(pytorch_ckpt, tf_ckpt):
     tf_vars = tf.train.list_variables(tf_ckpt)
     tf_vars = {k:v for (k, v) in tf_vars}
-    pytorch_model = torch.load(pytorch_ckpt)
+    pytorch_model = torch.load(pytorch_ckpt, map_location=torch.device('cpu'))
     pt_model_with_tf_keys = my_convert_keys(pytorch_model)
     only_pytorch, only_tf, common = [], [], []
     tf_only = set(tf_vars.keys())

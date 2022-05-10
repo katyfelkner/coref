@@ -1,0 +1,17 @@
+#!/bin/bash
+
+#SBATCH --time=4:00:00
+#SBATCH --gres=gpu:p100:2
+#SBATCH --cpus-per-task=2
+#SBATCH --mem-per-cpu=20GB
+#SBATCH --partition="isi,shared"
+
+source /project/jonmay_231/felkner/env_general/bin/activate
+module load cuda anaconda3
+
+CUDA_VISIBLE_DEVICES=0,1
+# do job stuff
+conda init bash
+source ~/.bashrc
+conda activate /project/jonmay_231/felkner/research/lgbtq/coref/coref_env
+GPU=0 python evaluate.py best

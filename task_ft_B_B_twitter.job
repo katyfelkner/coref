@@ -1,0 +1,22 @@
+#!/bin/bash
+
+#SBATCH --time=24:00:00
+#SBATCH --gres=gpu:p100:1
+#SBATCH --cpus-per-task=2
+#SBATCH --mem-per-cpu=20GB
+#SBATCH --partition="gpu"
+
+#source /project/jonmay_231/felkner/env_general/bin/activate
+module load cuda #anaconda3
+
+CUDA_VISIBLE_DEVICES=0
+# do job stuff
+conda init bash
+source ~/.bashrc
+conda activate coref_env_final
+which python
+export data_dir=./data
+echo "begin training..."
+GPU=0 python train.py train_bert_base_twitter
+echo "begin eval..."
+GPU=0 python evaluate.py train_bert_base_twitter

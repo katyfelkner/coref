@@ -24,22 +24,28 @@ if __name__ == "__main__":
   saver = tf.train.Saver()
 
   log_dir = config["log_dir"]
+  print("****** LOG LOCATION *******" + log_dir, flush=True)
   max_steps = config['num_epochs'] * config['num_docs']
   writer = tf.summary.FileWriter(log_dir, flush_secs=20)
-
+  model_location = config["tf_checkpoint"]
+  
   max_f1 = 0
   mode = 'w'
 
   with tf.Session() as session:
+    print("***** TF session opened ******", flush=True)
     session.run(tf.global_variables_initializer())
     model.start_enqueue_thread(session)
     accumulated_loss = 0.0
 
-    ckpt = tf.train.get_checkpoint_state(log_dir)
+    ckpt = tf.train.get_checkpoint_state(model_location)
     if ckpt and ckpt.model_checkpoint_path:
       print("Restoring from: {}".format(ckpt.model_checkpoint_path))
       saver.restore(session, ckpt.model_checkpoint_path)
       mode = 'a'
+    else:
+      print("failed to init from checkpoint")
+      
     fh = logging.FileHandler(os.path.join(log_dir, 'stdout.log'), mode=mode)
     fh.setFormatter(logging.Formatter(format))
     logger.addHandler(fh)
@@ -48,7 +54,7 @@ if __name__ == "__main__":
     while True:
       tf_loss, tf_global_step, _ = session.run([model.loss, model.global_step, model.train_op])
       accumulated_loss += tf_loss
-      # print('tf global_step', tf_global_step)
+      print('tf global_step', tf_global_step, 'accumulated loss', accumulated_loss)
 
       if tf_global_step % report_frequency == 0:
         total_time = time.time() - initial_time

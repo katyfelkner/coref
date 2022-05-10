@@ -4,7 +4,7 @@ from __future__ import print_function
 
 import numpy as np
 from collections import Counter
-from sklearn.utils.linear_assignment_ import linear_assignment
+from scipy.optimize import linear_sum_assignment as linear_assignment
 
 
 def f1(p_num, p_den, r_num, r_den, beta=1):
@@ -79,7 +79,7 @@ def b_cubed(clusters, mention_to_gold):
     num, dem = 0, 0
 
     for c in clusters:
-        if len(c) == 1:
+        if len(c) <= 1:
             continue
 
         gold_counts = Counter()
@@ -123,7 +123,7 @@ def ceafe(clusters, gold_clusters):
         for j in range(len(clusters)):
             scores[i, j] = phi4(gold_clusters[i], clusters[j])
     matching = linear_assignment(-scores)
-    similarity = sum(scores[matching[:, 0], matching[:, 1]])
+    similarity = sum(scores[matching[0], matching[1]])
     return similarity, len(clusters), similarity, len(gold_clusters)
 
 

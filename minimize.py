@@ -209,10 +209,14 @@ def minimize_partition(name, language, extension, labels, stats, tokenizer, seg_
     for document_lines in documents:
       if skip(document_lines[0]):
         continue
-      document = get_document(document_lines, tokenizer, language, seg_len)
-      output_file.write(json.dumps(document))
-      output_file.write("\n")
-      count += 1
+      try:
+        document = get_document(document_lines, tokenizer, language, seg_len)
+        output_file.write(json.dumps(document))
+        output_file.write("\n")
+        count += 1
+      except:
+        print(document_lines)
+        continue
   print("Wrote {} documents to {}".format(count, output_path))
 
 def minimize_language(language, labels, stats, vocab_file, seg_len, input_dir, output_dir, do_lower_case):
