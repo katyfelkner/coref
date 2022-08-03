@@ -39,6 +39,8 @@ if __name__ == "__main__":
     accumulated_loss = 0.0
 
     ckpt = tf.train.get_checkpoint_state(model_location)
+    print(ckpt)
+    print(ckpt.model_checkpoint_path)
     if ckpt and ckpt.model_checkpoint_path:
       print("Restoring from: {}".format(ckpt.model_checkpoint_path))
       saver.restore(session, ckpt.model_checkpoint_path)
